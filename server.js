@@ -15,7 +15,7 @@ import distributionRoutes from './routes/distributionRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import reportRoutes from './routes/reportRoutes.js';
 import mongoose from 'mongoose';
-
+const app = express();
 dotenv.config();
 
 let isConnected = false
@@ -32,13 +32,13 @@ async function connectDb() {
 
 app.use((req,res,next)=>{
     if(!isConnected){
-        connectDB()
+        connectDb()
     }
     next()
 })
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const app = express();
+
 app.use(cors({ origin: 'http://localhost:5173' }));
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
