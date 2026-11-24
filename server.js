@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { connectDB } from './config/db.js';
+// import { connectDB } from './config/db.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
 import authRoutes from './routes/authRoutes.js';
@@ -14,9 +14,28 @@ import beneficiaryRoutes from './routes/beneficiaryRoutes.js';
 import distributionRoutes from './routes/distributionRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import reportRoutes from './routes/reportRoutes.js';
+import mongoose from 'mongoose';
 
 dotenv.config();
-await connectDB();
+
+let isConnected = false
+async function connectDb() {
+    try{
+        await mongoose.connect(process.env.MONGO_URI)
+        isConnected = true
+        console.log("Connected to MongoDB")
+    }catch(error){
+        console.error("Error connecting to MongoDB:", error)
+    }
+    
+}
+
+app.use((req,res,next)=>{
+    if(!isConnected){
+        connectDB()
+    }
+    next()
+})
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -38,5 +57,6 @@ app.get('/', (req, res) => res.json({ status: 'API running' }));
 app.use(notFound);
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server on ${PORT}`));
+// const PORT = process.env.PORT || 5000;
+// app.listen(PORT, () => console.log(`🚀 Server on ${PORT}`));
+module.exports = app
